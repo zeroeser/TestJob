@@ -16,11 +16,15 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 WORKDIR /scheduler
 
 # Install dependencies
+COPY ./.env .
+COPY ./alembic.ini .
+COPY ./docker/postgresql/init.sh ./docker/postgresql/init.sh
 COPY ./poetry.lock pyproject.toml ./
+COPY ./alembic ./alembic
+COPY ./app ./app
+COPY ./scheduler ./scheduler
 RUN poetry install
 
 # Run your app
-COPY .. /
-
-CMD poetry run alembic upgrade head
+COPY . /
 
