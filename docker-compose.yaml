@@ -1,0 +1,51 @@
+version: "3.3"
+
+services:
+  postgres:
+    image: postgres:12
+    volumes:
+      - ./docker/postgresql:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - scheduler
+
+    ports:
+      - "5432:5432"
+  redis:
+    image: "redis:7-alpine"
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_data:/data"
+    command:
+      - redis-server
+      - --appendonly yes
+    networks:
+      - scheduler
+  celery_worker:
+    container_name: celery_worker
+    build: ./scheduler/.
+    command: bash -c "poetry run alembic upgrade head && poetry run celery -A scheduler.app worker --loglevel=info -B -E"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - scheduler
+
+networks:
+  scheduler:
+
+
+volumes:
+  pgdata:
+  miniodata:
+  redis_data:
+    driver: local
