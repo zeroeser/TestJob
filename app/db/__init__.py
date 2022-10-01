@@ -1,4 +1,2 @@
-from ..models import Deliveries
-from .base_class import Base
-
-__all__ = ["Base", "Deliveries"]
+from .base_class import Base # noqa
+from ..models import Deliveries # noqa

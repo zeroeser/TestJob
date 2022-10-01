@@ -30,10 +30,8 @@ services:
       - scheduler
   celery_worker:
     container_name: celery_worker
-    build: ./scheduler/.
+    build: .
     command: bash -c "poetry run alembic upgrade head && poetry run celery -A scheduler.app worker --loglevel=info -B -E"
-    volumes:
-      - .:/app
     depends_on:
       - redis
       - postgres
